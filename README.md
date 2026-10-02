@@ -1,6 +1,6 @@
-# Graph
+# Object oriented graph implementation
 
-This repo contains a Java implementation of a generic undirected graph data structure, without [loops](https://mathworld.wolfram.com/GraphLoop.html) or [multiple edges](https://mathworld.wolfram.com/MultipleEdge.html), along with a small social network demo that builds a "friendship" graph from a text file, computes some simple metrics, and draws the graph in the browser.
+This repo contains a Java implementation of a generic undirected graph, without [loops](https://mathworld.wolfram.com/GraphLoop.html) or [multiple edges](https://mathworld.wolfram.com/MultipleEdge.html), along with a small social network demo that builds a "friendship" graph from a text file, computes some simple metrics, and draws the graph in the browser.
 
 This was the midterm project for the *Programmazione II* (Programming Languages) course; the official specification and the original report are both in Italian:
 
@@ -16,7 +16,7 @@ The specification asked for:
 
 1. A full **specification** of the abstract data type `Graph<E>` as a Java interface, explaining the design choices. `Graph<E>` is a collection of homogeneous generic objects of type `E`, organized as a graph.
 2. An **implementation** of the ADT, documented with its *abstraction function* and *representation invariant*.
-3. A **social network** built on top of `Graph<E>`, where nodes are users and edges are friendships, plus some simple metrics such as the **distance** between two users (the length of the shortest path, i.e. how many intermediaries separate them) and the **diameter** of the network (the longest of all shortest paths, which measures how compact the network is).
+3. A **social network** built on top of `Graph<E>`, where nodes are users and edges are friendships, plus some simple metrics such as the distance between two users (the length of the shortest path, i.e. how many intermediaries separate them) and the diameter of the network (the longest of all shortest paths, which measures how compact the network is).
 
 
 
@@ -50,7 +50,7 @@ Code comments and console messages are in Italian.
 
 ### `Graph<E>`: the specification
 
-[`Graph.java`](src/Graph.java) defines a graph as a **mutable** collection of homogeneous objects of type `E` with no duplicates, fully described by the pair `<V, A>`:
+[`Graph.java`](https://github.com/matteogiorgi/graph/blob/master/src/Graph.java) defines a graph as a mutable collection of homogeneous objects of type `E` with no duplicates, fully described by the pair `<V, A>`:
 
 - `V = { x | x instanceof E }`, a finite set of vertices;
 - `A = { <x,y> | x != y, x,y ∈ V }`, a finite set of edges, each one identified by the pair of vertices it connects.
@@ -66,7 +66,7 @@ Each method is documented in the Liskov style, with `MODIFIES` and `EFFECTS` cla
 
 ### `GraphMap<E>`: the implementation
 
-[`GraphMap.java`](src/GraphMap.java) implements `Graph<E>` as an **adjacency map**:
+[`GraphMap.java`](https://github.com/matteogiorgi/graph/blob/master/src/GraphMap.java) implements `Graph<E>` as an adjacency map:
 
 ```java
 public class GraphMap<E extends Comparable<E>> implements Iterable<E>, Graph<E>
@@ -96,7 +96,7 @@ AF = <V, A>  where  V = st.keySet()
 - adjacency is symmetric: `y ∈ st.get(x) ⇒ x ∈ st.get(y)`;
 - `num_edge` = (Σ degrees) / 2, and `0 ≤ num_edge ≤ N(N-1)/2`.
 
-The private method `repOk()` checks the invariant and throws a `RepInvariantException` when it is broken. Because this was a teaching project, `repOk()` is called at the end of **every** mutator and constructor, so that each one can be seen to be correct. This makes mutators O(V + E), which is fine for a demo but not for production use.
+The private method `repOk()` checks the invariant and throws a `RepInvariantException` when it is broken. Because this was a teaching project, `repOk()` is called at the end of every mutator and constructor, so that each one can be seen to be correct. This makes mutators O(V + E), which is fine for a demo but not for production use.
 
 **Constructors**
 
@@ -105,20 +105,20 @@ The private method `repOk()` checks the invariant and throws a `RepInvariantExce
 
 **Breadth-first search: the `Path` inner class**
 
-`distanceInBetween`, `pathInBetween` and `graphDiameter` all rely on a private inner class `Path`. Its constructor runs a **BFS** and fills two maps, which together describe the BFS (shortest-path) spanning tree:
+`distanceInBetween`, `pathInBetween` and `graphDiameter` all rely on a private inner class `Path`. Its constructor runs a BFS and fills two maps, which together describe the BFS (shortest-path) spanning tree:
 
 - `distMap`: vertex → distance from the root;
 - `prevMap`: vertex → its predecessor on a shortest path.
 
-`Path` takes variadic arguments. With **one** vertex it explores the whole connected component from that root. With **two** vertices it stops as soon as the target is reached, which builds only the part of the tree needed to answer the query.
+`Path` takes variadic arguments. With one vertex it explores the whole connected component from that root. With two vertices it stops as soon as the target is reached, which builds only the part of the tree needed to answer the query.
 
 - `distanceInBetween(v, w)` returns the shortest-path length, or `-1` if `v` and `w` are in different connected components.
-- `pathInBetween(v, w)` walks `prevMap` back from `w` and returns the **intermediate** vertices on a shortest path.
+- `pathInBetween(v, w)` walks `prevMap` back from `w` and returns the intermediate vertices on a shortest path.
 - `graphDiameter()` runs a BFS from every vertex and returns the largest distance found (O(V·(V+E))). Unreachable pairs are ignored, so on a disconnected graph the result is the largest diameter among its components.
 
 **Extra methods** beyond the interface: `addSetVertex`, `addAttachedVertex`, `removeSetVertex`, `removeAllVertex`, `addSetEdge`, `removeSetEdge`, `isolateVertex`, `pathInBetween`, `commonNeighbours` (returns a `Stream<E>`), `toString`.
 
-**Exposure of the representation.** Since `E` is generic, the vertex objects themselves cannot be safely copied. `listVertex()` and `adjacentVertex()` at least return **unmodifiable** `NavigableSet` views, so clients cannot change the internal structure through them.
+**Exposure of the representation.** Since `E` is generic, the vertex objects themselves cannot be safely copied. `listVertex()` and `adjacentVertex()` at least return unmodifiable `NavigableSet` views, so clients cannot change the internal structure through them.
 
 **Exceptions.** Exception handling is defensive, and every exception is unchecked (a subclass of `RuntimeException`):
 
@@ -132,7 +132,7 @@ The private method `repOk()` checks the invariant and throws a `RepInvariantExce
 
 ### `Graphs`: static utilities
 
-[`Graphs.java`](src/Graphs.java) plays the same role for graphs that `Arrays` and `Collections` play for arrays and collections:
+[`Graphs.java`](https://github.com/matteogiorgi/graph/blob/master/src/Graphs.java) plays the same role for graphs that `Arrays` and `Collections` play for arrays and collections:
 
 - `asGraph(FileReader)` parses a text file and returns a new `GraphMap<String>` using the second constructor.
 - `readAndFill(GraphMap<String>, FileReader)` parses a text file and fills an existing (empty) graph with `addSetVertex`/`addEdge`.
@@ -160,7 +160,7 @@ The sample file describes a network of 23 people and 30 friendships, split into 
 
 ### `SocialNetTest`: the interactive demo
 
-[`SocialNetTest.java`](src/SocialNetTest.java) builds the same network twice: `alpha` with `Graphs.asGraph` and `beta` with `Graphs.readAndFill`. It draws both in the browser, prints their info and checks that `alpha.equals(beta)` is `true`. It then runs a text menu where you pick a graph and an operation:
+[`SocialNetTest.java`](https://github.com/matteogiorgi/graph/blob/master/src/SocialNetTest.java) builds the same network twice: `alpha` with `Graphs.asGraph` and `beta` with `Graphs.readAndFill`. It draws both in the browser, prints their info and checks that `alpha.equals(beta)` is `true`. It then runs a text menu where you pick a graph and an operation:
 
 ```
  0. No operation                      7. Insert a vertex already linked to friends
@@ -192,10 +192,3 @@ java SocialNetTest
 ```
 
 Enter `0` at the graph-selection prompt to quit. If the platform has no desktop browser (`java.awt.Desktop` is not supported), nothing is drawn and the console part works as usual.
-
-
-
-
-## License
-
-The project code is released under the [GNU GPL v3](LICENSE). The bundled JavaScript libraries (`arbor.js`, `graphics.js`, `renderer.js`, `jquery.min.js`) are third-party code under their own licenses (arbor: MIT; jQuery 1.4.4: MIT or GPL v2).
